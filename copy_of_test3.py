@@ -31,7 +31,7 @@ from Evaluator import InputBotEvaluator
 from functions import *
 from DataReader import DataReader
 import json
-
+from ParameterLoader import ParameterLoader
 
 USE_CUDA = torch.cuda.is_available()
 device = torch.device("cuda" if USE_CUDA else "cpu")
@@ -61,13 +61,12 @@ iters = config["load"]["iter"]
 
 output_size = voc.num_words
 checkpoint = None
+loader = ParameterLoader(save_dir, model_name, corpus_name)
 # ===============
 if loading:
-    checkpoint = torch.load(loadFilename)
-    model_sd = checkpoint['model']
-    encoder_optimizer_sd = checkpoint['en_opt']
-    decoder_optimizer_sd = checkpoint['de_opt']
-    voc.__dict__ = checkpoint['voc_dict']
+    model_sd,encoder_optimizer_sd,decoder_optimizer_sd,voc_dict,iteration = loader.load(loadFilename,checkpoint_iter)
+    voc.__dict__ = voc_dict
+    checkpoint = iteration
 print('Building encoder and decoder...')
 
 embedding = nn.Embedding(output_size,hidden_size)
@@ -108,7 +107,7 @@ for state in decoder_optimizer.state.values():
             state[k] = v.cuda()
 print('Start training!')
 trainer = SeqTrainer(seq2seq,encoder_optimizer,decoder_optimizer,device)
-operator = NLPOperator(model_name,trainer, voc,save_dir, print_every, save_every, corpus_name,clip,checkpoint)
+operator = NLPOperator(trainer, voc,loader ,print_every, save_every,clip,checkpoint)
 evaluator = InputBotEvaluator(seq2seq,voc,device,MAX_LENGTH)
 
 operator.train(pairs,n_iteration,batch_size)

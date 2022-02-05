@@ -1,6 +1,7 @@
 
 import torch
 from functions import normalizeString
+import xlrd
 class BaseReader:
     def loadPrepareData(self,corpus_name, datafile):pass
 class DataReader(BaseReader):
@@ -55,3 +56,35 @@ class DataReader(BaseReader):
         if self.isTrim:
             pairs = self.trimRareWords(voc,pairs)
         return voc, pairs
+class GenderDataReader(DataReader):
+    def __init__(self,VocClass,isTrim=True,MAX_LENGTH=10,MIN_COUNT=3):
+        self.Voc = VocClass
+        self.max = MAX_LENGTH
+        self.min = MIN_COUNT
+        self.isTrim = isTrim
+    def readVocs(self,datafile,corpus_name):
+        print("Reading lines...")
+        xlsx = xlrd.open_workbook(datafile)
+        sheet1 = xlsx.sheets()[0]
+        gender = sheet1.col_values(0)[1:]
+        name = sheet1.col_values(3)[1:]
+        pairs = list(zip(name,gender))
+        voc = self.Voc(corpus_name)
+        # 创建一个新的voc和一组对话pair
+        return voc,pairs
+    def loadPrepareData(self,corpus_name, datafile):
+        print("Start preparing training data ...")
+        voc, pairs = self.readVocs(datafile, corpus_name)
+        print("Read {!s} sentence pairs".format(len(pairs)))
+        for pair in pairs:
+            voc.addSentence(pair[0])
+            voc.addSentence(pair[1],loc='r')
+        print("Counted words:", voc.num_words)
+        return voc, pairs
+
+# from Voc import SplitVoc
+# datafile = './test_data.xlsx'
+# g = GenderDataReader(SplitVoc)
+# voc,pairs = g.loadPrepareData("abc", datafile)
+# print(pairs)
+# print(voc.word2index)

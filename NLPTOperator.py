@@ -5,11 +5,11 @@ import time
 import random
  
 class NLPOperator:
-    def __init__(self,model_name,trainer, voc,save_dir, print_every, save_every, corpus_name,clip, checkpoint=None):
+    def __init__(self,trainer, voc,loader, print_every, save_every,clip, checkpoint=None):
         self.print_every = print_every
         self.save_every = save_every
         self.trainer = trainer
-        self.dictionary = os.path.join(save_dir, model_name, corpus_name)
+        self.loader = loader
         self.checkpoint = checkpoint
         self.voc = voc
         self.clip = clip
@@ -25,7 +25,7 @@ class NLPOperator:
         start_iteration = 1
         print_loss = 0
         if self.checkpoint:
-            start_iteration = self.checkpoint['iteration'] + 1
+            start_iteration = self.checkpoint + 1
 
         # Training loop
         print("Training...")
@@ -50,16 +50,6 @@ class NLPOperator:
 
             # Save checkpoint
             if (iteration % self.save_every == 0):
-                directory = self.dictionary
-                if not os.path.exists(directory):
-                    os.makedirs(directory)
-                torch.save({
-                    'iteration': iteration,
-                    'model': self.trainer.model.state_dict(),
-                    'en_opt': self.trainer.encoder_optimizer.state_dict(),
-                    'de_opt': self.trainer.decoder_optimizer.state_dict(),
-                    'loss': loss,
-                    'voc_dict': self.voc.__dict__,
-                }, os.path.join(directory, '{}_{}.tar'.format(iteration, 'checkpoint')))
-        plt.plot( list(range(len(mat_loss))),mat_loss)
+                self.loader.save(iteration,self.trainer.model,self.trainer.encoder_optimizer,self.tariner.decoder_optimizer,loss,self.voc)        
+        plt.plot(list(range(len(mat_loss))),mat_loss)
         plt.show()

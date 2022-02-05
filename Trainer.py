@@ -21,14 +21,11 @@ class SeqTrainer:
         # packing的length参数放cpu
         lengths = lengths.to("cpu")
 
-        loss = 0
-        print_losses = []
-        # n_totals = 0
-
-        loss,print_losses,n_totals = self.model(input_variable,lengths,target_variable,mask,max_target_len)
+        loss = self.model(input_variable,lengths,target_variable,mask,max_target_len)
         loss.backward()
         self.model.clip(clip)
         self.encoder_optimizer.step()
         self.decoder_optimizer.step()
+        print(f'true:loss: {loss}')
         # print(list(encoder.parameters()))
-        return sum(print_losses) / n_totals
+        return self.model.avg

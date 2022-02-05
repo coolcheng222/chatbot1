@@ -20,7 +20,6 @@ def normalizeString(s):
     s = re.sub(r"[^a-zA-Z\.!\?]+", r" ", s)
     s = re.sub(r"\s+", r" ", s).strip()
     return s
-MIN_COUNT = 3
 def evaluateInput(model,voc,evaluator):
     input_sentence = ''
     while(1):

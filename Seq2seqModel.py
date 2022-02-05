@@ -43,7 +43,8 @@ class Seq2seq(nn.Module):
             print_losses.append(mask_loss.item() * nTotal)
             n_totals += nTotal
         # loss.backward()
-        return loss,print_losses,n_totals
+        self.avg = sum(print_losses) / n_totals
+        return loss
     def clip(self,clip):
         _ = nn.utils.clip_grad_norm_(self.encoder.parameters(),clip)
         _ = nn.utils.clip_grad_norm_(self.decoder.parameters(),clip)
