@@ -1,0 +1,27 @@
+{
+    "model":{
+        "attn": "dot",
+        "name":"cb_model"
+    },
+    "hyper":{
+        "hidden_size" :500,
+        "encoder_n_layers" :2,
+        "decoder_n_layers" :2,
+        "dropout" : 0.1,
+        "batch_size":64,
+        "clip" : 50.0,
+        "teacher_forcing_ratio" : 1.0,
+        "learning_rate" : 0.0001,
+        "decoder_learning_ratio" : 5.0,
+        "n_iteration" : 1000,
+        "print_every" : 1,
+        "save_every" : 500,
+        "MAX_LENGTH":10,
+        "eps": 1e-3
+    },
+    "load":{
+        "load": false,
+        "file":"",
+        "iter": 4000
+    }
+}
